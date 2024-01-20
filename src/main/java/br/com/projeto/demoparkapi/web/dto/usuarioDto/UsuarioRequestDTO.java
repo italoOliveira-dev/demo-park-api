@@ -12,10 +12,9 @@ public record UsuarioRequestDTO(
     String username,
     @NotBlank(message = "Campo não deve está vazio")
     @Size(min = 6, max = 6)
-    String password, 
-    String role) {
+    String password) {
     
     public Usuario toEntity() {
-        return new Usuario(username, password, role);
+        return new Usuario(username, password);
     }
 }
