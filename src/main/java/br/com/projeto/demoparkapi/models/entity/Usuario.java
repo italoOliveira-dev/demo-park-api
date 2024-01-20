@@ -23,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Usuario implements Serializable {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -85,6 +85,10 @@ public class Usuario implements Serializable {
                 + ", criadoPor=" + criadoPor + "]";
     }
 
+    public Usuario(String username, String password, String role) {
+        this.username = username;
+        this.password = password;
+        this.role = Role.valueOf(role);
+    }
 
-    
 }

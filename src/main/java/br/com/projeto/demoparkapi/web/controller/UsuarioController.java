@@ -1,8 +1,8 @@
 package br.com.projeto.demoparkapi.web.controller;
 
+import java.net.URI;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.projeto.demoparkapi.models.entity.Usuario;
 import br.com.projeto.demoparkapi.models.service.UsuarioService;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioPasswordDto;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioRequestDTO;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioResponseDTO;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -24,29 +27,31 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
-        Usuario user = usuarioService.salvar(usuario);
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody UsuarioRequestDTO usuarioDto, UriComponentsBuilder uBuilder) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        UsuarioResponseDTO user = usuarioService.salvar(usuarioDto);
+        URI uri = uBuilder.path("api/v1/usuarios/{id}").buildAndExpand(user.id()).toUri();
+
+        return ResponseEntity.created(uri).body(user);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obter(@PathVariable Long id) {
-        Usuario user = usuarioService.obterPorId(id);
+    public ResponseEntity<UsuarioResponseDTO> obter(@PathVariable Long id) {
+        UsuarioResponseDTO user = usuarioService.obter(id);
 
         return ResponseEntity.ok(user);
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> listar() {
-        List<Usuario> user = usuarioService.obterTodos();
+    public ResponseEntity<List<UsuarioResponseDTO>> listar() {
+        List<UsuarioResponseDTO> user = usuarioService.obterTodos();
 
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Usuario> modificarPassword(@PathVariable Long id, @RequestBody Usuario usuario) {
-        Usuario user = usuarioService.editarPassword(id, usuario.getPassword());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<Void> modificarPassword(@PathVariable Long id, @RequestBody UsuarioPasswordDto passwordDto) {
+        usuarioService.editarPassword(id, passwordDto);
+        return ResponseEntity.noContent().build();
     }
 }

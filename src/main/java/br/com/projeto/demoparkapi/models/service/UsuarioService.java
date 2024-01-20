@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.projeto.demoparkapi.models.entity.Usuario;
 import br.com.projeto.demoparkapi.models.repository.UsuarioRepository;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioPasswordDto;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioRequestDTO;
+import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioResponseDTO;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,27 +19,39 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
 
     @Transactional
-    public Usuario salvar(Usuario usuario) {
-        return usuarioRepository.save(usuario);
+    public UsuarioResponseDTO salvar(UsuarioRequestDTO usuarioDto) {
+        return UsuarioResponseDTO.fromUsuario(usuarioRepository.save(usuarioDto.toEntity()));
     }
 
     @Transactional(readOnly = true)
     public Usuario obterPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(
-            () -> new RuntimeException("Usuário não encontrado!")
-        );
+                () -> new RuntimeException("Usuário não encontrado!"));
     }
 
     @Transactional
-    public Usuario editarPassword(Long id, String password) {
+    public void editarPassword(Long id, UsuarioPasswordDto passwordDto) {
         Usuario user = obterPorId(id);
-        user.setPassword(password);
-        return user;
+
+        if (!passwordDto.newPassword().equals(passwordDto.confirmPassword())) {
+            throw new RuntimeException("Nova senha não confere com a comfirmação de senha.");
+        }
+
+        if (!user.getPassword().equals(passwordDto.currentPassword())) {
+            throw new RuntimeException("Sua senha não confere.");
+        }
+
+        user.setPassword(passwordDto.newPassword());
     }
 
     @Transactional(readOnly = true)
-    public List<Usuario> obterTodos() {
-        return usuarioRepository.findAll();
+    public List<UsuarioResponseDTO> obterTodos() {
+        return usuarioRepository.findAll().stream().map(UsuarioResponseDTO::fromUsuario).toList();
     }
-    
+
+    public UsuarioResponseDTO obter(Long id) {
+        Usuario user = obterPorId(id);
+        return UsuarioResponseDTO.fromUsuario(user);
+    }
+
 }
