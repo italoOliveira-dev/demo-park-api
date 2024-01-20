@@ -17,6 +17,7 @@ import br.com.projeto.demoparkapi.models.service.UsuarioService;
 import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioPasswordDto;
 import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioRequestDTO;
 import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody UsuarioRequestDTO usuarioDto, UriComponentsBuilder uBuilder) {
+    public ResponseEntity<UsuarioResponseDTO> criar(@RequestBody @Valid UsuarioRequestDTO usuarioDto, UriComponentsBuilder uBuilder) {
 
         UsuarioResponseDTO user = usuarioService.salvar(usuarioDto);
         URI uri = uBuilder.path("api/v1/usuarios/{id}").buildAndExpand(user.id()).toUri();
@@ -50,7 +51,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> modificarPassword(@PathVariable Long id, @RequestBody UsuarioPasswordDto passwordDto) {
+    public ResponseEntity<Void> modificarPassword(@PathVariable Long id, @RequestBody @Valid UsuarioPasswordDto passwordDto) {
         usuarioService.editarPassword(id, passwordDto);
         return ResponseEntity.noContent().build();
     }
