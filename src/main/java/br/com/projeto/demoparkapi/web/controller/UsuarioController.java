@@ -105,6 +105,20 @@ public class UsuarioController {
         return ResponseEntity.ok(user);
     }
 
+    @Operation(
+        summary = "Listar todos usuários",
+        description = "Recurso onde realiza uma Listagem de usuários",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Lista de usuários", 
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = UsuarioResponseDTO.class)
+                    )
+            )
+        }
+    )
     @GetMapping
     public ResponseEntity<List<UsuarioResponseDTO>> listar() {
         List<UsuarioResponseDTO> user = usuarioService.obterTodos();
