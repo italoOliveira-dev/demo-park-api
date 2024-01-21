@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Size;
 
 public record UsuarioRequestDTO(
 
-    @Email(regexp = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", message = "Formato de email está inválido.")
-    @NotBlank(message = "Campo não deve está vazio")
+    @Email(message = "Campo Obrigatório!")
+    @NotBlank(message = "Campo Obrigatório!")
     String username,
-    @NotBlank(message = "Campo não deve está vazio")
-    @Size(min = 6, max = 6)
+    @NotBlank(message = "Campo Obrigatório!")
+    @Size(min = 6, max = 6, message = "Senha deve possuir 6 digitos!")
     String password) {
     
     public Usuario toEntity() {

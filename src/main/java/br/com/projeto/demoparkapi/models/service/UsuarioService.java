@@ -2,9 +2,13 @@ package br.com.projeto.demoparkapi.models.service;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.projeto.demoparkapi.exception.EntityNotFoundException;
+import br.com.projeto.demoparkapi.exception.PasswordException;
+import br.com.projeto.demoparkapi.exception.UsernameUniqueViolationException;
 import br.com.projeto.demoparkapi.models.entity.Usuario;
 import br.com.projeto.demoparkapi.models.repository.UsuarioRepository;
 import br.com.projeto.demoparkapi.web.dto.usuarioDto.UsuarioPasswordDto;
@@ -20,13 +24,17 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO salvar(UsuarioRequestDTO usuarioDto) {
-        return UsuarioResponseDTO.fromUsuario(usuarioRepository.save(usuarioDto.toEntity()));
+        try{
+            return UsuarioResponseDTO.fromUsuario(usuarioRepository.save(usuarioDto.toEntity()));
+        } catch(DataIntegrityViolationException ex) {
+            throw new UsernameUniqueViolationException(String.format("Username '%s' já foi cadastrado", usuarioDto.username()));
+        }
     }
 
     @Transactional(readOnly = true)
     public Usuario obterPorId(Long id) {
         return usuarioRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Usuário não encontrado!"));
+                () -> new EntityNotFoundException(String.format("Usuário id=%d não encontrado.", id)));
     }
 
     @Transactional
@@ -34,11 +42,11 @@ public class UsuarioService {
         Usuario user = obterPorId(id);
 
         if (!passwordDto.newPassword().equals(passwordDto.confirmPassword())) {
-            throw new RuntimeException("Nova senha não confere com a comfirmação de senha.");
+            throw new PasswordException("Nova senha não confere com a comfirmação de senha.");
         }
 
         if (!user.getPassword().equals(passwordDto.currentPassword())) {
-            throw new RuntimeException("Sua senha não confere.");
+            throw new PasswordException("Sua senha não confere.");
         }
 
         user.setPassword(passwordDto.newPassword());
