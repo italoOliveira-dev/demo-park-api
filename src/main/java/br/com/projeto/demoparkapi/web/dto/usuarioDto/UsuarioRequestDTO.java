@@ -7,9 +7,13 @@ import jakarta.validation.constraints.Size;
 
 public record UsuarioRequestDTO(
 
-    @Email(message = "Campo Obrigatório!")
+    @Email(
+            regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}",
+            message = "Campo Obrigatório!"
+        )
     @NotBlank(message = "Campo Obrigatório!")
     String username,
+
     @NotBlank(message = "Campo Obrigatório!")
     @Size(min = 6, max = 6, message = "Senha deve possuir 6 digitos!")
     String password) {
